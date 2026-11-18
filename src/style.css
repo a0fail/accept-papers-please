@@ -1,0 +1,6 @@
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111b17}body{user-select:none;-webkit-user-select:none;overscroll-behavior:none;font-family:Arial,sans-serif}#game{width:100%;height:100%;touch-action:none}canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}#rotate{display:none;position:fixed;bottom:10px;left:5%;width:90%;padding:12px;background:#293d35;color:#eee6ce;text-align:center;pointer-events:none}@media(orientation:portrait) and (max-width:700px){#rotate{display:block}}
+@font-face{font-family:Tiny5;src:url('/assets/fonts/Tiny5.ttf') format('truetype');font-display:block;font-weight:100 900}
+body{font-family:Tiny5,monospace}.name-entry{font-family:Tiny5,monospace;font-size:24px;line-height:1.3;color:#1d2928;background:#eee6ce;border:3px solid #1d2928;outline:none;padding:8px;border-radius:0;box-shadow:4px 4px #1d2928;user-select:text;-webkit-user-select:text;width:470px;height:92px;resize:none}.name-entry:focus{border-color:#547d65}
+body{display:grid;place-items:center}
+
+#game{position:relative}
