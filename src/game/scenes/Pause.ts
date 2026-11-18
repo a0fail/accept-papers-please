@@ -39,8 +39,8 @@ export class Pause extends Phaser.Scene {
     this,
     480, 375,
     this.options.soundEnabled()
-        ? 'ЗВУК: ВКЛ'
-        : 'ЗВУК: ВЫКЛ',
+        ? 'ЗВУК: ВЫКЛ'
+        : 'ЗВУК: ВКЛ',
     () => {
         this.options.toggleSound();
         this.draw(confirm);

@@ -28,7 +28,7 @@ private addSoundToggle(x: number, y: number) {
       this,
       x,
       y,
-      this.audio.enabled ? 'ЗВУК: ВКЛ' : 'ЗВУК: ВЫКЛ',
+      this.audio.enabled ? 'ЗВУК: ВЫКЛ' : 'ЗВУК: ВКЛ',
       () => {
         this.audio.toggle();
         render();

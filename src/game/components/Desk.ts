@@ -8,6 +8,7 @@ import { photoPixels,remainingPages,submissionKey } from '../systems/mechanics';
 import type { DocumentId,PhotoSet } from '../types';
 export class Desk {
  selected?:DocumentId;page=0;view?:Phaser.GameObjects.Container;dragging=false;
+ private previous:Phaser.GameObjects.Container;private next:Phaser.GameObjects.Container;
  covers=new Map<DocumentId,Phaser.GameObjects.Container>();accepted=new Set<string>();
  // Keep the tray's horizontal tolerance and bottom edge; accept drops up to the top of the glass.
  readonly tray=new Phaser.Geom.Rectangle(
@@ -19,7 +20,8 @@ export class Desk {
  constructor(private scene:Phaser.Scene,ids:DocumentId[],private enabled:()=>boolean,private submit:(id:DocumentId,page:number)=>void,private inspect:(id:DocumentId,page:number)=>void,private form:(id:DocumentId)=>boolean,private photos:PhotoSet=photoConfig.sizes){
   label(scene,20,260,'ВАШИ ДОКУМЕНТЫ',16).setDepth(3);
   ids.forEach(id=>this.addCover(id));
-  button(scene,244,513,'←',()=>this.turn(-1),44);button(scene,302,513,'→',()=>this.turn(1),44);
+  this.previous=button(scene,0,0,'←',()=>this.turn(-1),44).setDepth(25).setVisible(false);
+  this.next=button(scene,0,0,'→',()=>this.turn(1),44).setDepth(25).setVisible(false);
   button(scene,384,513,'Читать',()=>{if(this.enabled()&&!this.dragging&&this.selected)this.inspect(this.selected,this.page);},100);
   button(scene,489,513,'Убрать',()=>this.close(),96);
   scene.input.on('dragstart',this.onDragStart,this);scene.input.on('drag',this.onDrag,this);scene.input.on('dragend',this.onDragEnd,this);
@@ -46,7 +48,7 @@ c.add([r, coverText]);
   r.on('pointerdown',()=>this.open(id));r.on('pointerover',()=>r.setTint(0xffebac));r.on('pointerout',()=>r.clearTint());this.covers.set(id,c);
  }
  open(id:DocumentId){if(!this.enabled()||this.dragging||!remainingPages(id,this.accepted).length)return;if(this.form(id))return;this.close();this.selected=id;this.page=remainingPages(id,this.accepted)[0];this.covers.get(id)?.setAlpha(.45);this.render();}
- close(){if(!this.enabled()||this.dragging)return;if(this.selected)this.covers.get(this.selected)?.setAlpha(1);this.selected=undefined;this.view?.destroy();this.view=undefined;}
+ close(){if(!this.enabled()||this.dragging)return;if(this.selected)this.covers.get(this.selected)?.setAlpha(1);this.selected=undefined;this.view?.destroy();this.view=undefined;this.previous.setVisible(false);this.next.setVisible(false);}
  turn(step:number){if(!this.enabled()||!this.selected||this.dragging)return;const pages=remainingPages(this.selected,this.accepted);this.page=pages[Phaser.Math.Clamp(pages.indexOf(this.page)+step,0,pages.length-1)];this.render();}
  render(){this.view?.destroy();if(!this.selected)return;const d=documents[this.selected],p=d.pages[this.page];const photo=d.kind==='photos';const center=photo?{x:385,y:367}:{x:340,y:d.kind==='passport'?357:377};const c=this.scene.add.container(center.x,center.y).setDepth(30);this.view=c;
   let w=230,h=224;
@@ -59,6 +61,11 @@ c.add([r, coverText]);
     const brief=d.kind==='folder'?p.text.split('\n\n')[0]+'\n\n«Читать» — весь документ':p.text;
     c.add(label(this.scene,-103,-99+titleLines*18,brief,16,'#24362d',206));c.add(label(this.scene,-103,88,`Лист ${this.page+1}/${d.pages.length} · тяните`,16,'#4f6250'));}
   }
+  // Controls belong to the desk, so dragging the document never moves them.
+  const navigationWidth=photo?Math.max(...this.photos.map(p=>p.width*photoConfig.pixelsPerVershok)):d.kind==='folder'?assets.folderShell.width:w;
+  const arrowOffset=navigationWidth/2+34;
+  this.previous.setPosition(center.x-arrowOffset,center.y).setVisible(true);
+  this.next.setPosition(center.x+arrowOffset,center.y).setVisible(true);
   c.setSize(w,h).setInteractive(new Phaser.Geom.Rectangle(0,0,w,h),Phaser.Geom.Rectangle.Contains);this.scene.input.setDraggable(c);c.input!.cursor='grab';
  }
  private onDragStart(_p:Phaser.Input.Pointer,o:Phaser.GameObjects.GameObject){if(o===this.view&&this.enabled()){this.dragging=true;this.view?.setDepth(55);}}
@@ -66,7 +73,7 @@ c.add([r, coverText]);
  private onDragEnd(p:Phaser.Input.Pointer,o:Phaser.GameObjects.GameObject){if(o!==this.view||!this.dragging)return;this.dragging=false;this.view?.setDepth(30);if(this.enabled()&&this.tray.contains(p.x,p.y)&&this.selected)this.submit(this.selected,this.page);else this.returnPaper();}
  cancel=()=>{if(this.dragging){this.dragging=false;this.returnPaper();}};
  returnPaper(){this.view?.setDepth(30);if(this.view)this.scene.tweens.add({targets:this.view,x:this.selected==='photo'?385:340,y:this.selected==='photo'?367:this.selected==='passport'?357:377,duration:180,ease:'Back.Out'});}
- accept(done:()=>void){if(!this.selected||!this.view)return;const id=this.selected;this.accepted.add(submissionKey(id,this.page));if(!remainingPages(id,this.accepted).length)this.covers.get(id)?.setVisible(false);else this.covers.get(id)?.setAlpha(1);
+ accept(done:()=>void){if(!this.selected||!this.view)return;this.previous.setVisible(false);this.next.setVisible(false);const id=this.selected;this.accepted.add(submissionKey(id,this.page));if(!remainingPages(id,this.accepted).length)this.covers.get(id)?.setVisible(false);else this.covers.get(id)?.setAlpha(1);
   this.scene.tweens.add({targets:this.view,x:325,y:180,scale:.25,alpha:0,duration:380,onComplete:()=>{this.view?.destroy();this.view=undefined;this.selected=undefined;done();}});
  }
 }
