@@ -14,6 +14,7 @@ import { PlayerReply } from '../components/PlayerReply';
 import { label,button,panel,PixelDialog,colors } from '../components/ui';
 import type { DocumentId } from '../types';
 import { AudioManager } from '../systems/AudioManager';
+import { openCreatorPage } from '../data/creator';
 
 export class Game extends Phaser.Scene {
 
@@ -126,7 +127,8 @@ private addSoundToggle(x: number, y: number) {
     }
 
   button(this,200,435,'Как играть',()=>this.help());
-  this.addSoundToggle(750, 435);
+  this.addSoundToggle(750, 385);
+  button(this,750,435,'О создателе — a0fail',openCreatorPage,190);
  }
  private help(){this.clear();this.backdrop();label(this,85,106,'ПОРЯДОК ПОДАЧИ',32);label(this,85,163,
   '1. Нажмите на паспорт или файлик. Стрелки меняют лист.\n2. «Читать» открывает документ крупно. Часы продолжают идти.\n3. Отпустите нужный лист внутри лотка под стеклом.\n4. Фото измеряйте линейкой: её ноль совмещается с краем.\n5. Согласие подпишите кликом или Space, когда кончик в поле.\n6. Перепечатайте ФИО из паспорта. Ъ имеет значение.\n7. Посетителям отвечайте кнопкой «Далее». Время идёт!\n\nНа приём: 1½, 2 и 2½ минуты. Скрытая вкладка ставит часы на паузу.',16,'#eee6ce',780);button(this,230,455,'В главное меню',()=>this.menu(),280);}
@@ -136,7 +138,8 @@ private addSoundToggle(x: number, y: number) {
   label(this,100,130,`ДЕНЬ ${days[index].number}`,48);label(this,100,208,days[index].name,32);label(this,100,266,days[index].intro,24,'#c4c6aa',730);
   label(this,100,318,`Время приёма: ${this.session.day.duration} секунд`,16,'#c4c6aa');
   button(this,240,390,'Подойти к окну',()=>{if(this.session.move('active'))this.play();},280);this.cameras.main.fadeIn(240);
-  this.addSoundToggle(750, 435);
+  this.addSoundToggle(750, 385);
+  button(this,750,435,'О создателе — a0fail',openCreatorPage,190);
 }
 
 private animateCrowd(
@@ -231,11 +234,15 @@ if (/^crowd[1-5]$/.test(key)) {
 //   button(this,890,467,'МЕНЮ',()=>this.pause(true),110).setDepth(200);
 //   button(this,890,513,'ПАУЗА',()=>this.pause(false),110).setDepth(200);
   button(
-    this, 890, 467,
+    this, 890, 510,
     'МЕНЮ',
     () => this.pause(false),
     110
     );
+  const credit=label(this,890,478,'by a0fail',16).setOrigin(.5).setAlpha(.55).setDepth(50).setInteractive({useHandCursor:true});
+  credit.on('pointerover',()=>credit.setAlpha(.85));
+  credit.on('pointerout',()=>credit.setAlpha(.55));
+  credit.on('pointerdown',openCreatorPage);
   this.request();this.cameras.main.fadeIn(200);
  }
  private showNotice(message:string){
