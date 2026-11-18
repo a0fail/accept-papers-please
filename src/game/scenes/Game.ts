@@ -239,7 +239,7 @@ if (/^crowd[1-5]$/.test(key)) {
     () => this.pause(false),
     110
     );
-  const credit=label(this,890,478,'by a0fail',16).setOrigin(.5).setAlpha(.55).setDepth(50).setInteractive({useHandCursor:true});
+  const credit=label(this,945,478,'by a0fail',16).setOrigin(1,.5).setAlpha(.55).setDepth(50).setInteractive({useHandCursor:true});
   credit.on('pointerover',()=>credit.setAlpha(.85));
   credit.on('pointerout',()=>credit.setAlpha(.55));
   credit.on('pointerdown',openCreatorPage);
