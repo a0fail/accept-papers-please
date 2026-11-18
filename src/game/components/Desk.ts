@@ -9,7 +9,13 @@ import type { DocumentId,PhotoSet } from '../types';
 export class Desk {
  selected?:DocumentId;page=0;view?:Phaser.GameObjects.Container;dragging=false;
  covers=new Map<DocumentId,Phaser.GameObjects.Container>();accepted=new Set<string>();
- readonly tray=new Phaser.Geom.Rectangle(assets.tray.x-assets.tray.width/2-10,assets.tray.y-assets.tray.height/2-10,assets.tray.width+20,assets.tray.height+20);
+ // Keep the tray's horizontal tolerance and bottom edge; accept drops up to the top of the glass.
+ readonly tray=new Phaser.Geom.Rectangle(
+  assets.tray.x-assets.tray.width/2-10,
+  assets.glass.y-assets.glass.height/2,
+  assets.tray.width+20,
+  assets.tray.y+assets.tray.height/2+10-(assets.glass.y-assets.glass.height/2),
+ );
  constructor(private scene:Phaser.Scene,ids:DocumentId[],private enabled:()=>boolean,private submit:(id:DocumentId,page:number)=>void,private inspect:(id:DocumentId,page:number)=>void,private form:(id:DocumentId)=>boolean,private photos:PhotoSet=photoConfig.sizes){
   label(scene,20,260,'ВАШИ ДОКУМЕНТЫ',16).setDepth(3);
   ids.forEach(id=>this.addCover(id));

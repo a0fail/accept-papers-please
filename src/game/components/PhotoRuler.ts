@@ -12,10 +12,17 @@ export class PhotoRuler {
   const g=scene.add.graphics();g.fillStyle(0xcdbb83);g.fillRect(-24,-24,24,unit*2+48);g.lineStyle(1,0x354336);
   for(let i=0;i<=16;i++){const p=i*unit/8,l=i%8===0?18:i%4===0?13:7;g.lineBetween(p,0,p,-l);g.lineBetween(0,p,-l,p);if(i%8===0){this.root.add(label(scene,p+3,-22,`${i/8}`,16,'#26352f'));this.root.add(label(scene,-20,p+3,`${i/8}`,16,'#26352f'));}}
   this.root.addAt(g,1);this.root.add(label(scene,5,-47,'вершки · 1/8',16,'#eee6ce'));
-  const grip=scene.add.rectangle(40,-12,120,24,0xffffff,0).setInteractive({useHandCursor:true});this.root.add(grip);scene.input.setDraggable(grip);
-  grip.on('dragstart',()=>{if(enabled()){scene.tweens.killTweensOf(this.root);this.dragging=true;}});
-  grip.on('drag',(_p:Phaser.Input.Pointer,_x:number,_y:number)=>{if(!this.dragging||!enabled())return;this.root.setPosition(Phaser.Math.Clamp(_p.x-40,180,410),Phaser.Math.Clamp(_p.y+12,245,380));});
-  grip.on('dragend',()=>{this.dragging=false;});
+  const grips=[
+   scene.add.rectangle(48,-12,120,24,0xffffff,0),
+   scene.add.rectangle(-12,unit,24,unit*2+48,0xffffff,0),
+  ];
+  let offsetX=0,offsetY=0;
+  for(const grip of grips){
+   grip.setInteractive({useHandCursor:true});this.root.add(grip);scene.input.setDraggable(grip);
+   grip.on('dragstart',(p:Phaser.Input.Pointer)=>{if(enabled()){scene.tweens.killTweensOf(this.root);offsetX=p.x-this.root.x;offsetY=p.y-this.root.y;this.dragging=true;}});
+   grip.on('drag',(p:Phaser.Input.Pointer)=>{if(!this.dragging||!enabled())return;this.root.setPosition(Phaser.Math.Clamp(p.x-offsetX,180,410),Phaser.Math.Clamp(p.y-offsetY,232,380));});
+   grip.on('dragend',()=>{this.dragging=false;});
+  }
   scene.tweens.add({targets:this.root,y:232,duration:350});
  }
  cancel(){this.dragging=false;}
